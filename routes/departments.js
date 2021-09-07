@@ -1,10 +1,7 @@
 const express = require('express');
 const validate = require('express-validation');
 const depController = require('../controller/departments');
-const {
-  postDepartmentBodySchema,
-  editDepartmentBodySchema
-} = require('../validation/joiRequestValidation');
+const { postDepartmentBodySchema, editDepartmentBodySchema } = require('../validation/joiRequestValidation');
 
 const router = express.Router();
 

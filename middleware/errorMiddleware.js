@@ -58,5 +58,5 @@ const notFound = (req, res, next) => {
 
 module.exports = {
   convertError,
-  notFound
+  notFound,
 };

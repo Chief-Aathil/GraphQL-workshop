@@ -1,13 +1,12 @@
-
 const express = require('express');
 const validate = require('express-validation');
 const empController = require('../controller/employees');
-const {authorize} = require("../middleware/authorization.middlware");
+const { authorize } = require('../middleware/authorization.middlware');
 const {
   idParamsSchema,
   postEmployeeBodySchema,
   editEmployeeBodySchema,
-  postEmployeeDepartmentBodySchema
+  postEmployeeDepartmentBodySchema,
 } = require('../validation/joiRequestValidation');
 
 const router = express.Router();
