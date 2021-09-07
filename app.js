@@ -13,6 +13,11 @@ const empRoutes = require('./routes/employees');
 const depRoutes = require('./routes/departments');
 const loginRoute = require('./routes/login');
 
+const { ApolloServer } = require('apollo-server-express');
+const typeDefs = require('./schema/schema');
+const resolvers = require('./resolver/resolver');
+const { ApolloServerPluginLandingPageGraphQLPlayground } = require('apollo-server-core');
+
 /**
  * Express instance
  * @public
@@ -29,8 +34,20 @@ app.use('/departments', depRoutes);
 app.use('/login', loginRoute);
 
 // Error Middlewares
-app.use(notFound);
-app.use(convertError);
+// app.use(notFound); // TODO: Middleware is blocking access to /graphql
+// app.use(convertError);
+
+let apolloServer = null;
+async function startGqlServer() {
+  apolloServer = new ApolloServer({
+    typeDefs,
+    resolvers,
+    plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
+  });
+  await apolloServer.start();
+  apolloServer.applyMiddleware({ app });
+}
+startGqlServer();
 
 // Employee.hasMany(EmpDept);
 EmpDept.belongsTo(Employee, {
