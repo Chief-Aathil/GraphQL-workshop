@@ -14,7 +14,9 @@ const depRoutes = require('./routes/departments');
 const loginRoute = require('./routes/login');
 
 const { ApolloServer } = require('apollo-server-express');
-const typeDefs = require('./schema/schema');
+const { makeExecutableSchema } = require('@graphql-tools/schema'); // Part of the standard apollo-server package
+const codeFirstSchema = require('./schema/codeFirst');
+const typeDefs = require('./schema/schemaFirst');
 const resolvers = require('./resolver/resolver');
 const { ApolloServerPluginLandingPageGraphQLPlayground } = require('apollo-server-core');
 
@@ -39,9 +41,10 @@ app.use('/login', loginRoute);
 
 let apolloServer = null;
 async function startGqlServer() {
+  const schemaFirst = makeExecutableSchema({ typeDefs, resolvers }); // Manually built the schema from the resolvers and SDL
+
   apolloServer = new ApolloServer({
-    typeDefs,
-    resolvers,
+    schema: codeFirstSchema, // Which schema to use? Code first vs Schema first
     plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
   });
   await apolloServer.start();
