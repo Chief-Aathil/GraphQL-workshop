@@ -7,10 +7,17 @@ const typeDefs = gql`
     password: String!
     age: Int!
     isActive: Boolean!
+    id:Int!
   }
 
   type Query {
     getEmployees: [Employee]
+    getEmployeeById(id:Int!):Employee
+  }
+  type Mutation{
+    addEmployee(name:String!,age:Int!,username:String!,password:String!): String
+    updateEmployee(id:Int!,name:String!,age:Int!,username:String!,password:String!,isActive:Boolean!):Employee
+    deleteEmployee(id:Int!):String
   }
 `;
 
