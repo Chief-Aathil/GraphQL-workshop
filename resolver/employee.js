@@ -4,6 +4,7 @@ const loginConstants = require('../constants/login.constants');
 const EmpDept = require('../models/employeeDepartment');
 const Department = require('../models/departments');
 const { Op } = require('sequelize');
+const { AuthenticationError } = require('apollo-server-express');
 
 const resolvers = {
   Query: {
@@ -16,6 +17,9 @@ const resolvers = {
   },
   Mutation: {
     async createEmployee(root, { input }, context) {
+      if(!context.user) {
+        throw new AuthenticationError("Unauthenticated user cannot create a new employee");
+      }
       const { name, age, username, password } = input;
       const hashedPassword = bcrypt.hashSync(password, loginConstants.salt);
 

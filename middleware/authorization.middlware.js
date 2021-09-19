@@ -25,7 +25,14 @@ const authorize = (req, res, next) => {
   next();
 };
 
+const authorizeGql = (req) => {
+  const token = req.headers.authorization.split(' ');
+  const data = jsonwebtoken.verify(token[1], loginConstants.jwtSecret);
+  return data;
+};
+
 module.exports = {
   authorize,
+  authorizeGql,
   validateLoginInput,
 };
