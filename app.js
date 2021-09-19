@@ -18,6 +18,8 @@ const { makeExecutableSchema } = require('@graphql-tools/schema'); // Part of th
 const codeFirstSchema = require('./schema/codeFirst');
 const employeeSchema = require('./schema/employee');
 const employeeResolver = require('./resolver/employee');
+const departmentSchema = require('./schema/department');
+const departmentResolver = require('./resolver/department');
 
 const { merge } = require('lodash');
 const { ApolloServerPluginLandingPageGraphQLPlayground } = require('apollo-server-core');
@@ -43,7 +45,10 @@ app.use('/login', loginRoute);
 
 let apolloServer = null;
 async function startGqlServer() {
-  const schemaFirst = makeExecutableSchema({ typeDefs: [employeeSchema], resolvers: merge(employeeResolver) }); // Manually built the schema from the resolvers and SDL
+  const schemaFirst = makeExecutableSchema({
+    typeDefs: [employeeSchema, departmentSchema],
+    resolvers: merge(employeeResolver, departmentResolver),
+  }); // Manually built the schema from the resolvers and SDL
 
   apolloServer = new ApolloServer({
     schema: schemaFirst, // Which schema to use? Code first vs Schema first
