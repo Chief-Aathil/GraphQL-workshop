@@ -1,6 +1,9 @@
 const Employee = require('../models/employees');
 const bcrypt = require('bcrypt');
 const loginConstants = require('../constants/login.constants');
+const EmpDept = require('../models/employeeDepartment');
+const Department = require('../models/departments');
+const { Op } = require('sequelize');
 
 const resolvers = {
   Query: {
@@ -37,6 +40,14 @@ const resolvers = {
       employee.isActive = false;
 
       return await employee.save();
+    },
+    async addDepartment(root, { employeeId, departmentId }, context) {
+      await EmpDept.create({
+        empId: employeeId,
+        deptId: departmentId,
+      });
+
+      return await Employee.findByPk(employeeId);
     },
   },
 };

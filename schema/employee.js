@@ -16,9 +16,10 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    createEmployee(input: CreateEmployeeInput!): Employee
-    updateEmployee(id: Int!, input: UpdateEmployeeInput!): Employee
-    deleteEmployee(id: Int!): Employee
+    createEmployee(input: CreateEmployeeInput!): Employee!
+    updateEmployee(id: Int!, input: UpdateEmployeeInput!): Employee!
+    deleteEmployee(id: Int!): Employee!
+    addDepartment(employeeId: Int!, departmentId: Int!): Employee!
   }
 
   input CreateEmployeeInput {
