@@ -10,8 +10,13 @@ const typeDefs = gql`
   }
 
   type Query {
-    getEmployees: [Employee]
+    getEmployees: [Employee],
+    getEmployee(id:String!): Employee
   }
+
+  type Mutation {
+    editName(id: String!, name: String): Employee
+  }  
 `;
 
 module.exports = typeDefs;

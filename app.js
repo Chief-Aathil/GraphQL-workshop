@@ -60,16 +60,16 @@ EmpDept.belongsTo(Employee, {
 // Department.hasMany(EmpDept);
 EmpDept.belongsTo(Department, {
   foreignKey: {
-    name: 'deptId',
+    name: 'deptId', 
   },
   onDelete: 'CASCADE',
 });
 
 sequelize
-  .sync()
+  .sync({ logging: console.log })
   .then((result) => {
     console.log('Listening for requests at http://localhost:7001');
-    app.listen(7001);
+    app.listen(4000);
   })
   .catch((err) => {
     console.log(err);
