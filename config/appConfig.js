@@ -11,7 +11,7 @@ const config = {
       host: process.env.DB_HOST,
       port: process.env.DB_PORT,
       dialect: 'postgres',
-      logging: false,
+      logging: true,
     },
     credentials: {
       username: process.env.DB_USERNAME,
