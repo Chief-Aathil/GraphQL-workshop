@@ -1,7 +1,23 @@
+const DataLoader = require('dataloader');
 const Department = require('../models/departments');
 const Employee = require('../models/employees');
 const EmpDept = require('../models/employeeDepartment');
 const { Op } = require('sequelize');
+
+const batchGetEmployeeOfDepartmentsById = async (departmentIds) => {
+  // I return a map of [DepartmentId]: DepartmentEmployeeDetails
+  const employeeOfDepartments = await EmpDept.findAll({
+    where: { deptId: { [Op.in]: departmentIds } },
+    include: Employee,
+  });
+
+  const employeeOfDepartmentsMap = departmentIds.map((departmentId) => {
+    return employeeOfDepartments.filter((department) => department.deptId === departmentId);
+  });
+  return employeeOfDepartmentsMap;
+};
+
+const departmentEmployeesLoader = new DataLoader(batchGetEmployeeOfDepartmentsById);
 
 const resolvers = {
   Query: {
@@ -36,10 +52,8 @@ const resolvers = {
   },
   Department: {
     async employee(department) {
-      employeesOfDepartment = await EmpDept.findAll({
-        where: { deptId: department.id },
-        include: Employee,
-      });
+      employeesOfDepartment = await departmentEmployeesLoader.load(department.id);
+
       return employeesOfDepartment.map((employeeOfDept) => {
         return employeeOfDept.getDataValue('employee');
       });

@@ -1,3 +1,4 @@
+const DataLoader = require('dataloader');
 const Employee = require('../models/employees');
 const bcrypt = require('bcrypt');
 const loginConstants = require('../constants/login.constants');
@@ -5,6 +6,21 @@ const EmpDept = require('../models/employeeDepartment');
 const Department = require('../models/departments');
 const { Op } = require('sequelize');
 const { AuthenticationError } = require('apollo-server-express');
+
+const batchGetDepartmentOfEmployeesById = async (employeeIds) => {
+  // I return a map of [EmployeeId]: EmployeeDepartmentDetails
+  const departmentsOfEmployees = await EmpDept.findAll({
+    where: { empId: { [Op.in]: employeeIds } },
+    include: Department,
+  });
+
+  const departmentsOfEmployeesMap = employeeIds.map((employeeId) => {
+    return departmentsOfEmployees.filter((employee) => employee.empId === employeeId);
+  });
+  return departmentsOfEmployeesMap;
+};
+
+const employeesDepartmentLoader = new DataLoader(batchGetDepartmentOfEmployeesById);
 
 const resolvers = {
   Query: {
@@ -56,10 +72,8 @@ const resolvers = {
   },
   Employee: {
     async department(employee) {
-      departmentsOfEmployee = await EmpDept.findAll({
-        where: { empId: employee.id },
-        include: Department,
-      });
+      departmentsOfEmployee = await employeesDepartmentLoader.load(employee.id);
+
       return departmentsOfEmployee.map((departmentOfEmp) => {
         return departmentOfEmp.getDataValue('department');
       });
