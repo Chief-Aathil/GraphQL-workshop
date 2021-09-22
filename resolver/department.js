@@ -38,14 +38,11 @@ const resolvers = {
     async employee(department) {
       employeesOfDepartment = await EmpDept.findAll({
         where: { deptId: department.id },
+        include: Employee,
       });
-      const employeeIds = employeesOfDepartment.map((empDept) => empDept.empId);
-
-      if (employeeIds.length) {
-        return await Employee.findAll({ where: { id: { [Op.in]: employeeIds } } });
-      } else {
-        return [];
-      }
+      return employeesOfDepartment.map((employeeOfDept) => {
+        return employeeOfDept.getDataValue('employee');
+      });
     },
   },
 };

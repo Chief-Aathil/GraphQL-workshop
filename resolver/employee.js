@@ -58,14 +58,11 @@ const resolvers = {
     async department(employee) {
       departmentsOfEmployee = await EmpDept.findAll({
         where: { empId: employee.id },
+        include: Department,
       });
-      const departmentIds = departmentsOfEmployee.map((empDept) => empDept.deptId);
-
-      if (departmentIds.length) {
-        return await Department.findAll({ where: { id: { [Op.in]: departmentIds } } });
-      } else {
-        return [];
-      }
+      return departmentsOfEmployee.map((departmentOfEmp) => {
+        return departmentOfEmp.getDataValue('department');
+      });
     },
   },
 };
