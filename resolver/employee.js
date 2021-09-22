@@ -17,8 +17,8 @@ const resolvers = {
   },
   Mutation: {
     async createEmployee(root, { input }, context) {
-      if(!context.user) {
-        throw new AuthenticationError("Unauthenticated user cannot create a new employee");
+      if (!context.user) {
+        throw new AuthenticationError('Unauthenticated user cannot create a new employee');
       }
       const { name, age, username, password } = input;
       const hashedPassword = bcrypt.hashSync(password, loginConstants.salt);
@@ -59,9 +59,13 @@ const resolvers = {
       departmentsOfEmployee = await EmpDept.findAll({
         where: { empId: employee.id },
       });
-      const departments = departmentsOfEmployee.map((empDept) => empDept.deptId);
+      const departmentIds = departmentsOfEmployee.map((empDept) => empDept.deptId);
 
-      return await Department.findAll({ where: { id: { [Op.in]: departments } } });
+      if (departmentIds.length) {
+        return await Department.findAll({ where: { id: { [Op.in]: departmentIds } } });
+      } else {
+        return [];
+      }
     },
   },
 };
