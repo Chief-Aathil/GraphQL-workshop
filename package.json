@@ -10,6 +10,7 @@
   "author": "Pooja Mehta",
   "license": "ISC",
   "dependencies": {
+    "@graphql-tools/schema": "^8.2.0",
     "@types/bcrypt": "^5.0.0",
     "apollo-server-express": "^3.3.0",
     "bcrypt": "^5.0.1",
@@ -20,6 +21,7 @@
     "express-jwt": "^6.0.0",
     "express-validation": "^1.0.2",
     "graphql": "^15.5.3",
+    "graphql-subscriptions": "^1.2.1",
     "graphql-tools": "^8.2.0",
     "http-status": "^1.3.2",
     "joi": "^14.3.1",
@@ -29,6 +31,7 @@
     "pg": "^8.6.0",
     "postgres": "^1.0.2",
     "sequelize": "^6.6.2",
+    "subscriptions-transport-ws": "^0.9.19",
     "tsc": "^2.0.3",
     "typescript": "^4.3.2",
     "validator": "^13.6.0"

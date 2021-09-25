@@ -29,6 +29,11 @@ const { authorizeGql } = require('./middleware/authorization.middlware');
 const DataLoader = require('dataloader');
 const batchGetDepartmentOfEmployeesById = require('./util/employeeDataloader');
 const batchGetEmployeeOfDepartmentsById = require('./util/departmentDataloader');
+
+const { createServer } = require('http');
+const { execute, subscribe } = require('graphql');
+const { SubscriptionServer } = require('subscriptions-transport-ws');
+
 /**
  * Express instance
  * @public
@@ -48,6 +53,8 @@ app.use('/login', loginRoute);
 // app.use(notFound); // TODO: Middleware is blocking access to /graphql
 // app.use(convertError);
 
+const httpServer = createServer(app); // Pass the express app to the httpServer for subscriptions
+
 let apolloServer = null;
 async function startGqlServer() {
   const schemaFirst = makeExecutableSchema({
@@ -57,7 +64,19 @@ async function startGqlServer() {
 
   apolloServer = new ApolloServer({
     schema: schemaFirst, // Which schema to use? Code first vs Schema first
-    plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
+    plugins: [
+      ApolloServerPluginLandingPageGraphQLPlayground(),
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              // The drainServer event fires when Apollo Server is starting to shut down because ApolloServer.stop() has been invoked (either explicitly by your code, or by one of the termination signal handlers).
+              subscriptionServer.close();
+            },
+          };
+        },
+      },
+    ],
     formatError: (error) => {
       return {
         message: error.extensions?.exception?.response?.message || error.message,
@@ -86,6 +105,11 @@ async function startGqlServer() {
   });
   await apolloServer.start();
   apolloServer.applyMiddleware({ app });
+
+  const subscriptionServer = SubscriptionServer.create(
+    { schema: schemaFirst, execute, subscribe },
+    { server: httpServer, path: apolloServer.graphqlPath }
+  );
 }
 startGqlServer();
 
@@ -108,8 +132,10 @@ EmpDept.belongsTo(Department, {
 sequelize
   .sync()
   .then((result) => {
-    console.log('Listening for requests at http://localhost:7001');
-    app.listen(7001);
+    httpServer.listen(7001, () => {
+      console.log(`🚀 Query endpoint ready at http://localhost:7001${apolloServer.graphqlPath}`);
+      console.log(`🚀 Subscription endpoint ready at ws://localhost:7001${apolloServer.graphqlPath}`);
+    });
   })
   .catch((err) => {
     console.log(err);

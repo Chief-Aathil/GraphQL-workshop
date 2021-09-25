@@ -25,6 +25,10 @@ const typeDefs = gql`
   input UpdateDepartmentInput {
     name: String!
   }
+
+  type Subscription {
+    departmentCreated: Department
+  }
 `;
 
 module.exports = typeDefs;
