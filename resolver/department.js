@@ -1,7 +1,4 @@
 const Department = require('../models/departments');
-const Employee = require('../models/employees');
-const EmpDept = require('../models/employeeDepartment');
-const { Op } = require('sequelize');
 
 const resolvers = {
   Query: {
@@ -35,11 +32,9 @@ const resolvers = {
     },
   },
   Department: {
-    async employee(department) {
-      employeesOfDepartment = await EmpDept.findAll({
-        where: { deptId: department.id },
-        include: Employee,
-      });
+    async employee(department, {}, context) {
+      employeesOfDepartment = await context.departmentEmployeesLoader.load(department.id);
+
       return employeesOfDepartment.map((employeeOfDept) => {
         return employeeOfDept.getDataValue('employee');
       });

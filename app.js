@@ -26,6 +26,9 @@ const { merge } = require('lodash');
 const { ApolloServerPluginLandingPageGraphQLPlayground } = require('apollo-server-core');
 const { authorizeGql } = require('./middleware/authorization.middlware');
 
+const DataLoader = require('dataloader');
+const batchGetDepartmentOfEmployeesById = require('./util/employeeDataloader');
+const batchGetEmployeeOfDepartmentsById = require('./util/departmentDataloader');
 /**
  * Express instance
  * @public
@@ -63,16 +66,22 @@ async function startGqlServer() {
           statusCode: error.extensions?.code,
           error: error.extensions?.exception?.stacktrace[0],
         },
-      }
+      };
     },
     context: ({ req }) => {
+      let user;
+
+      // Initialize the dataloaders per context
+      const employeeDepartmentsLoader = new DataLoader(batchGetDepartmentOfEmployeesById);
+      const departmentEmployeesLoader = new DataLoader(batchGetEmployeeOfDepartmentsById);
+
       if (req.headers.authorization) {
-        const user = authorizeGql(req);
+        user = authorizeGql(req);
         if (!user) {
           throw new AuthenticationError("Couldn't authenticate this user");
         }
-        return { user };
       }
+      return { user, employeeDepartmentsLoader, departmentEmployeesLoader };
     },
   });
   await apolloServer.start();

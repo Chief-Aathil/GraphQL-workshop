@@ -2,8 +2,6 @@ const Employee = require('../models/employees');
 const bcrypt = require('bcrypt');
 const loginConstants = require('../constants/login.constants');
 const EmpDept = require('../models/employeeDepartment');
-const Department = require('../models/departments');
-const { Op } = require('sequelize');
 const { AuthenticationError } = require('apollo-server-express');
 
 const resolvers = {
@@ -55,11 +53,9 @@ const resolvers = {
     },
   },
   Employee: {
-    async department(employee) {
-      departmentsOfEmployee = await EmpDept.findAll({
-        where: { empId: employee.id },
-        include: Department,
-      });
+    async department(employee, {}, context) {
+      departmentsOfEmployee = await context.employeeDepartmentsLoader.load(employee.id);
+
       return departmentsOfEmployee.map((departmentOfEmp) => {
         return departmentOfEmp.getDataValue('department');
       });
