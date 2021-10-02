@@ -20,9 +20,11 @@ const employeeSchema = require('./schema/employee');
 const employeeResolver = require('./resolver/employee');
 const departmentSchema = require('./schema/department');
 const departmentResolver = require('./resolver/department');
-
+const loginSchema = require('./schema/login');
+const loginResolver = require('./resolver/login');
 const { merge } = require('lodash');
 const { ApolloServerPluginLandingPageGraphQLPlayground } = require('apollo-server-core');
+const { authorizeGql } = require('./middleware/authorization.middlware');
 
 /**
  * Express instance
@@ -46,13 +48,32 @@ app.use(convertError);
 let apolloServer = null;
 async function startGqlServer() {
   const schemaFirst = makeExecutableSchema({
-    typeDefs: [employeeSchema, departmentSchema],
-    resolvers: merge(employeeResolver, departmentResolver),
+    typeDefs: [employeeSchema, departmentSchema, loginSchema],
+    resolvers: merge(employeeResolver, departmentResolver, loginResolver),
   }); // Manually built the schema from the resolvers and SDL
 
   apolloServer = new ApolloServer({
     schema: schemaFirst, // Which schema to use? Code first vs Schema first
     plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
+    formatError: (error) => {
+      return {
+        message: error.extensions?.exception?.response?.message || error.message,
+        path: error.path,
+        extensions: {
+          statusCode: error.extensions?.code,
+          error: error.extensions?.exception?.stacktrace[0],
+        },
+      }
+    },
+    context: ({ req }) => {
+      if (req.headers.authorization) {
+        const user = authorizeGql(req);
+        if (!user) {
+          throw new AuthenticationError("Couldn't authenticate this user");
+        }
+        return { user };
+      }
+    },
   });
   await apolloServer.start();
   apolloServer.applyMiddleware({ app });
