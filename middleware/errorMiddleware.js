@@ -49,6 +49,9 @@ const convertError = (err, req, res, next) => {
  * @public
  */
 const notFound = (req, res, next) => {
+  if (req.url === '/graphql') {
+    return next();
+  }
   const err = new APIError({
     message: 'Not found',
     status: httpStatus.NOT_FOUND,

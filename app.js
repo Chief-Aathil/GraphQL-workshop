@@ -34,8 +34,8 @@ app.use('/departments', depRoutes);
 app.use('/login', loginRoute);
 
 // Error Middlewares
-// app.use(notFound); // TODO: Middleware is blocking access to /graphql
-// app.use(convertError);
+app.use(notFound);
+app.use(convertError);
 
 let apolloServer = null;
 async function startGqlServer() {
