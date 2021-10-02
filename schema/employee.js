@@ -8,6 +8,7 @@ const typeDefs = gql`
     password: String!
     age: Int!
     isActive: Boolean!
+    department: [Department]
   }
 
   type Query {

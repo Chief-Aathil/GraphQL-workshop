@@ -4,6 +4,7 @@ const typeDefs = gql`
   type Department {
     id: Int!
     name: String!
+    employee: [Employee]
   }
 
   type Query {

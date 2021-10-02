@@ -50,5 +50,16 @@ const resolvers = {
       return await Employee.findByPk(employeeId);
     },
   },
+  Employee: {
+    async department(employee) {
+      departmentsOfEmployee = await EmpDept.findAll({
+        where: { empId: employee.id },
+        include: Department,
+      });
+      return departmentsOfEmployee.map((departmentOfEmp) => {
+        return departmentOfEmp.getDataValue('department');
+      });
+    },
+  },
 };
 module.exports = resolvers;
