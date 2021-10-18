@@ -1,4 +1,7 @@
 const Department = require('../models/departments');
+const { PubSub } = require('graphql-subscriptions');
+
+const pubsub = new PubSub(); // https://www.apollographql.com/docs/apollo-server/data/subscriptions/#production-pubsub-libraries
 
 const resolvers = {
   Query: {
@@ -13,9 +16,14 @@ const resolvers = {
     async createDepartment(root, { input }, context) {
       const { name } = input;
 
-      return await Department.create({
+      createdDepartment = await Department.create({
         name,
       });
+      pubsub.publish('DEPARTMENT_CREATED', {
+        departmentCreated: createdDepartment,
+      });
+
+      return createdDepartment;
     },
     async updateDepartment(root, { id, input }, context) {
       const { name } = input;
@@ -38,6 +46,11 @@ const resolvers = {
       return employeesOfDepartment.map((employeeOfDept) => {
         return employeeOfDept.getDataValue('employee');
       });
+    },
+  },
+  Subscription: {
+    departmentCreated: {
+      subscribe: () => pubsub.asyncIterator(['DEPARTMENT_CREATED']),
     },
   },
 };
