@@ -7,11 +7,11 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - /data/postgres:/data/postgres
+      - postgresdata:/var/lib/postgresql/data
     env_file:
       - docker.env
     networks:
-      - authnet
+      - gqldemo
 
   pgadmin:
     links:
@@ -20,12 +20,17 @@ services:
     ports:
       - '8080:80'
     volumes:
-      - /data/pgadmin:/root/.pgadmin
+      - pgadmindata:/var/lib/pgadmin
     env_file:
       - docker.env
     networks:
-      - authnet
+      - gqldemo
 
 networks:
-  authnet:
+  gqldemo:
     driver: bridge
+volumes:
+  postgresdata:
+    driver: local
+  pgadmindata:
+    driver: local
